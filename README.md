@@ -73,6 +73,10 @@ uv run ruff check .
 
 The project configures the Tsinghua PyPI mirror for `uv` and commits `backend/uv.lock` for reproducible installs.
 
+The GitHub Actions backend workflow repeats Ruff, migrations, model-drift checks, and
+the complete test suite against a fresh PostgreSQL 16 service on pushes to `main` and
+pull requests.
+
 Run migrations against the configured PostgreSQL database:
 
 ```bash

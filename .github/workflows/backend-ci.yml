@@ -1,0 +1,76 @@
+name: Backend CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Ruff, migrations, and tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: flowos_ci
+          POSTGRES_USER: flowos_ci
+          POSTGRES_PASSWORD: flowos_ci_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U flowos_ci -d flowos_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      FLOWOS_ENV: test
+      FLOWOS_DATABASE_HOST: 127.0.0.1
+      FLOWOS_DATABASE_PORT: 5432
+      FLOWOS_DATABASE_NAME: flowos_ci
+      FLOWOS_DATABASE_USER: flowos_ci
+      FLOWOS_DATABASE_PASSWORD: flowos_ci_only
+      FLOWOS_RUN_POSTGRES_TESTS: "1"
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.8.22"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
+      - name: Install Python dependencies
+        run: uv sync --frozen --extra dev
+
+      - name: Run Ruff
+        run: uv run --no-sync ruff check .
+
+      - name: Apply migrations to an empty PostgreSQL database
+        run: uv run --no-sync alembic upgrade head
+
+      - name: Check model and migration consistency
+        run: uv run --no-sync alembic check
+
+      - name: Run unit, API, and PostgreSQL integration tests
+        run: uv run --no-sync pytest

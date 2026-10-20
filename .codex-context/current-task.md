@@ -4,28 +4,32 @@
 
 ## 目标
 
-建立 FlowOS 项目级 Codex 跨会话上下文管理机制。本次只修改说明文档和上下文文件，不修改业务代码。
+为 FlowOS 增加后端 GitHub Actions CI，在一次性 PostgreSQL 上验证代码、迁移和测试，不引入尚未确认的采购业务规则。
 
 ## 状态
 
-已完成：项目规则、决策索引、简明路线图和双文件交接机制已建立；已有架构文档仅做增量更新。
+已完成：CI workflow 和相关决策/路线文档已建立，本地等价命令验证通过；首轮 GitHub Actions 结果待提交并推送后确认。
 
-## 实际修改文件
+## 计划与实际修改文件
 
-- 新建根目录 `AGENTS.md`。
-- 增量更新已有 `docs/architecture.md`，不覆盖有效架构说明。
-- 新建 `docs/decisions.md` 和 `docs/roadmap.md`。
-- 新建 `.codex-context/current-task.md` 和 `.codex-context/handoff.md`。
-- 在 README 增加上下文入口。
+- `.github/workflows/backend-ci.yml`
+- `README.md`
+- `docs/decisions.md`
+- `docs/roadmap.md`
+- `docs/development-plan.md`
+- `.codex-context/current-task.md`
+- 验证完成后更新 `.codex-context/handoff.md`
 
 ## 验证
 
-- 已验证所有上下文入口及其本地 Markdown 目标存在。
-- `git diff --check` 通过。
-- 对新增上下文范围执行了常见凭据模式检查，未发现数据库密码、连接串凭据或 `.env` 内容。
-- 本次不运行后端测试，因为业务代码不在本次修改范围内；最近一次业务回归结果记录在 `handoff.md`。
+- Workflow YAML 解析通过，`git diff --check` 通过。
+- Ruff 通过。
+- 本地 PostgreSQL 连接正常，完整测试 26 项通过。
+- `alembic check` 通过，无模型漂移。
+- GitHub Actions 的首轮远端结果只有推送后才能确认。
 
 ## 待解决与下一步
 
-- 下一业务任务候选是评审/提交当前阶段 1–2 改动，然后设计阶段 3 的采购建议草稿、任务状态与审计事件。
+- 采购包装、最小订购量等阶段 3 规则仍待用户确认，本轮不实现。
+- 下一步是提交并推送 CI 改动、观察首轮运行结果，然后确认阶段 3 规则或增加密钥扫描。
 - 当用户说“准备切换新对话”时，重新采集 Git 和验证事实并更新本文件与 `handoff.md`。

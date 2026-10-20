@@ -39,6 +39,12 @@
 
 - 先验证普通 API、确定性计算、任务状态、审计和结构化 UI；Core Agent 在生产就绪门槛之后引入。
 
+### D-008 后端持续集成
+
+- GitHub Actions 使用一次性 PostgreSQL 16 服务，从空数据库执行全部 Alembic 迁移。
+- CI 使用锁文件安装依赖，并依次执行 Ruff、`alembic check`、单元/API 测试和 PostgreSQL 集成测试。
+- Workflow 只授予仓库内容读取权限，第三方 action 固定到提交 SHA，且不持久化 Git 凭据。
+
 ## 待确认，不得臆定
 
 - 快照新鲜度、批次/颜色资格、在途资格、分配优先级和单位换算策略。
