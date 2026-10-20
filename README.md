@@ -36,6 +36,30 @@ Expected response:
 
 The API container runs versioned database migrations before starting the server.
 
+Create idempotent synthetic development data with:
+
+```bash
+cd backend
+uv run python -m app.commands.seed_synthetic
+```
+
+Business API endpoints currently available:
+
+```text
+GET /api/v1/sales-orders
+GET /api/v1/sales-orders/{order_id}
+GET /api/v1/sales-orders/{order_id}/material-requirements
+GET /api/v1/sales-orders/{order_id}/shortage-analysis?snapshot_id={snapshot_id}
+```
+
+API errors use a stable envelope with `error.code`, `error.message`, and optional
+`error.details`. Material requirements are calculated only for confirmed orders whose
+lines explicitly select an active, effective BOM version.
+
+Shortage analysis always references an explicit final inventory snapshot. It reports
+included supply, excluded inbound supply, warnings, source requirement rows, and the
+versioned calculation rules used for the result.
+
 ## Run backend checks locally with uv
 
 Dependencies and the Python environment are managed by [uv](https://docs.astral.sh/uv/). The project targets Python 3.12.
@@ -67,3 +91,16 @@ Alembic records the current revision in `alembic_version`. Generate a migration 
 - All sample data must be unmistakably synthetic.
 
 See [architecture](docs/architecture.md), [V0.1 PRD](docs/prd-v0.1.md), [AI Manufacturing Operating System direction](docs/ai-manufacturing-os.md), [development plan](docs/development-plan.md), [business rules](docs/business-rules.md), and [data compliance](docs/data-compliance.md).
+
+## Codex project continuity
+
+- Repository instructions: [AGENTS.md](AGENTS.md)
+- Confirmed decisions: [docs/decisions.md](docs/decisions.md)
+- Concise roadmap: [docs/roadmap.md](docs/roadmap.md)
+- Current task: [.codex-context/current-task.md](.codex-context/current-task.md)
+- Cross-session handoff: [.codex-context/handoff.md](.codex-context/handoff.md)
+
+At the start of a new conversation, read the applicable `AGENTS.md` and the two
+`.codex-context` files, then verify the current Git status before continuing. When the
+user says “准备切换新对话”, refresh both context files from actual repository and
+validation evidence; never copy secrets or `.env` contents into them.

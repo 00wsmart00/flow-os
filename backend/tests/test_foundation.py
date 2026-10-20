@@ -21,11 +21,12 @@ def test_models_repository_and_service_keep_contract_boundary(test_session) -> N
         SalesOrderQuery(customer_code="SYN-CUST-001")
     )
 
-    assert len(result) == 1
-    assert result[0].order_number == "SYN-SO-0001"
-    assert result[0].customer_id == customer.id
-    assert result[0].total_amount == Decimal("1234.50")
-    assert result[0].__class__.__module__.startswith("app.schemas")
+    assert len(result.items) == 1
+    assert result.items[0].order_number == "SYN-SO-0001"
+    assert result.items[0].customer_id == customer.id
+    assert result.items[0].customer.code == "SYN-CUST-001"
+    assert result.items[0].total_amount == Decimal("1234.50")
+    assert result.items[0].__class__.__module__.startswith("app.schemas")
 
 
 def test_order_query_rejects_unbounded_result_size() -> None:

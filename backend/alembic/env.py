@@ -5,7 +5,17 @@ from sqlalchemy import create_engine, pool
 from alembic import context
 from app.db.base import BaseModel
 from app.db.database import database_url
-from app.models import Customer, SalesOrder  # noqa: F401
+from app.models import (  # noqa: F401
+    BomItem,
+    BomVersion,
+    Customer,
+    InventorySnapshot,
+    Material,
+    MaterialSupplyPosition,
+    Product,
+    SalesOrder,
+    SalesOrderLine,
+)
 
 config = context.config
 

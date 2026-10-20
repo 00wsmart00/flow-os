@@ -2,12 +2,16 @@ from __future__ import annotations
 
 from datetime import UTC, date, datetime
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Date, DateTime, ForeignKey, Index, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import BaseModel
 from app.models.customer import Customer
+
+if TYPE_CHECKING:
+    from app.models.sales_order_line import SalesOrderLine
 
 
 def utc_now() -> datetime:
@@ -44,3 +48,8 @@ class SalesOrder(BaseModel):
     )
 
     customer: Mapped[Customer] = relationship(back_populates="sales_orders")
+    lines: Mapped[list[SalesOrderLine]] = relationship(
+        back_populates="sales_order",
+        cascade="all, delete-orphan",
+        order_by="SalesOrderLine.line_number",
+    )
